@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    body{background-color: black;}
+    label{position: absolute;
+    right: 50%;
+    top: 25px;
+    font-size: x-large;
+    color: yellow;}
+    label1{position: absolute;
+    left: 80%;
+    top: 25px;
+    font-size: xx-large;
+    color: #3602f3;}
+    label3{position: absolute;
+    right: 90%;
+    top: 35px;
+    font-size: medium;
+    color: chartreuse;}
+    canvas{position: absolute;
+    right: 30%;
+    top: 200px;}
+    button{position: relative;
+    right: -5%;
+    top: 100px;
+    font-size: large;
+    color: purple;
+    background-color: pink;}
+
+</style>
+
+
+<label id="gra">Wisielec</label>
+<p><label1 id="liczbaprob">Twoje próby</label1></p>
+<p><label2 id="dlugosc">Długość słowa</label2></p>
+<p><label3 id="postep">Twoje slowo</label3></p>
+<p><canvas id="canvas" height="400" width="400"></canvas></p>
+
+<body onload="start()">
+
+    <script>
+        var słowo;
+        var maska = Array();
+        var zamaskowanesłowo = Array();
+        var próby;
+
+        var litery = Array();
+        
+        function start() {
+            próby = 1;
+            showProby();
+
+            słowo = prompt("Podaj słowo do gry: ");
+            słowo = słowo.toUpperCase();
+            document.getElementById("dlugosc").innerHTML = "Ilość liter w słowie: " + słowo.length + ".";
+
+            maska = Array(słowo.length);
+            maska.fill(false)
+
+            zamaskowanesłowo = Array(słowo.length);
+            zamaskowanesłowo.fill("_");
+            showWord();
+
+            stworzklawiature();
+            draw();
+        }
+
+        function showWord() {
+            for(let i = 0; i < słowo.length; i++) {
+                if(maska[i]) {
+                    zamaskowanesłowo[i] = słowo[i];
+                } 
+            }
+
+            printWord();
+        }
+
+        function check(litera) {
+            if (próby <= 9 ) {
+                let trafiona = false;
+
+                for (let i = 0; i < słowo.length; i++) {
+                    if(słowo[i] == litera) {
+                        maska[i] = true;
+                        trafiona = true;
+                    } 
+                }
+
+            if(!trafiona) {
+                próby++;
+            }
+
+                showProby();
+                draw();
+                showWord();
+                checkwinorlose();
+            } 
+        }
+
+        function stworzklawiature() {
+            let table = Array ()
+        
+            for (let i=65; i<91; i++){
+                table.push(String.fromCharCode(i))
+            }
+            console.log(table);
+
+            for(let tabela = 0; tabela < table.length; tabela++ ){
+                b = document.createElement('button')
+                b.innerHTML = table[tabela];
+                b.addEventListener('click', function(){
+                    check(table[tabela]);
+                    this.disabled = true;
+                })
+                document.body.appendChild(b)
+            }
+        }
+
+        function showProby() {
+            document.getElementById("liczbaprob").innerHTML = próby + " z 10";
+        }
+
+        function checkwinorlose() {
+            if(maska.indexOf(false) == -1) {
+                alert("brawo uratowałeś wisielca \nUkryte słowo: " + słowo);
+            }  
+
+            if(próby >= 10) {
+                alert("Przegrałeś :P \nUkryte słowo, na które Cię pokonało: " + słowo);
+            }
+        }
+
+        function printWord() {
+            let niceslowo = "";
+            for (let i = 0; i < zamaskowanesłowo.length; i++) {
+                niceslowo += zamaskowanesłowo[i];
+            }
+
+            document.getElementById("postep").innerHTML = niceslowo;
+        }
+
+ 
+        function draw() {
+            drawLine(100, 400, 350, 400);
+
+            if(próby > 1) {
+                drawLine(300, 400, 300, 100);
+            }
+
+            if(próby > 2) {
+                drawLine(350, 400, 300, 350);
+            }
+
+            if(próby > 3) {
+                drawLine(250, 400, 300, 350);
+            }
+
+            if(próby > 4) {
+                drawLine(300, 100, 200, 100);
+            }
+
+            if(próby > 5) {
+                drawLine(300, 125, 275, 100);
+            }
+
+            if(próby > 6) {
+                drawLine(200, 100, 200, 150);
+            }
+            
+            if(próby > 7) {
+                drawLine(200, 125, 225, 100);
+            }
+
+            if(próby > 8){
+                drawlast(200, 175, 25);
+            }
+
+            if(próby > 9) {
+                writeDead(10, 300);
+            }
+
+        }
+
+        function drawLine(startX, startY, stopX, stopY) {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+
+            ctx.strokeStyle = 'red';
+            ctx.lineWidth = 2;
+
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(stopX, stopY);
+            ctx.stroke();
+        }
+        
+        function drawlast(X, Y, Promien) {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+
+            ctx.strokeStyle = 'red';
+            ctx.lineWidth = 2;
+             
+            ctx.beginPath();
+            ctx.arc(X, Y, Promien, 0, 2*Math.PI);
+            ctx.stroke();
+            drawLine(X, Y + 25, X, 300);
+            drawLine(X, 300, X - 25, 375);
+            drawLine(X, 300, X + 25, 375);
+            drawLine(X, 250, X - 75, Y + 25);
+            drawLine(X, 250, X + 75, Y + 25);
+        }
+
+        function writeDead(X, Y) {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+
+            ctx.font = "20px Georgia";
+            ctx.fillText("Jesteś martwy! :(", X, Y);
+        }
+
+
+    </script>
+</body>
+</html>
